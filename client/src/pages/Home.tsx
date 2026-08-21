@@ -58,6 +58,13 @@ function makeSeaRatesUrl(from: string, to: string, mode: "海運" | "空運") {
   return `https://www.searates.com/distance-time?${params.toString()}`;
 }
 
+function makeSeaRatesUrlFromCodes(from: string, to: string, mode: "海運" | "空運") {
+  const normalizeCode = (value: string) => value.trim().replace(/\s+/g, "+");
+  const transportMode = mode === "空運" ? "Air" : "Sea";
+  const placeType = mode === "空運" ? "airport" : "seaport";
+  return `https://www.searates.com/distance-time?from=${normalizeCode(from)}&to=${normalizeCode(to)}&transportMode=${transportMode}&routingMode=short&fromPlaceType=${placeType}&toPlaceType=${placeType}`;
+}
+
 export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
@@ -69,8 +76,18 @@ export default function Home() {
   const [inputMode, setInputMode] = useState<"excel" | "text">("excel");
   const [pastedText, setPastedText] = useState("");
 
-  const outputRows = useMemo(() => {
+  const outputRows = useMemo<Record<string, unknown>[]>(() => {
     if (!rows.length) return [];
+    if (inputMode === "text") {
+      return rows.map((row) => {
+        const rawMode = normalize(row.運輸方式).toLowerCase();
+        const mode: "海運" | "空運" = rawMode.includes("air") || rawMode.includes("空") ? "空運" : "海運";
+        const from = normalize(row.出發地英文代碼);
+        const to = normalize(row.目的地英文代碼);
+        const url = from && to ? makeSeaRatesUrlFromCodes(from, to, mode) : "";
+        return { ...row, 運輸方式: mode, SeaRates查詢連結: url, 查詢狀態: url ? "完成" : "待補三欄資料" };
+      });
+    }
     const originHeader = findHeader(headers, HEADER_CANDIDATES.origin);
     const destinationHeader = findHeader(headers, HEADER_CANDIDATES.destination);
     return rows.map((row) => {
@@ -91,7 +108,7 @@ export default function Home() {
         查詢狀態: url ? "完成" : `待補對照：${originRaw || "出發地"} → ${destinationRaw || "目的地"}`,
       };
     });
-  }, [headers, rows]);
+  }, [headers, inputMode, rows]);
 
   const resultHeaders = useMemo(() => {
     const extra = ["運輸方式", "出發地英文代碼", "目的地英文代碼", "SeaRates查詢連結", "查詢狀態"];
@@ -130,7 +147,7 @@ export default function Home() {
     setError("");
     const text = pastedText.trim();
     if (!text) {
-      setError("請先貼上一行資料，不需要欄位名稱。");
+      setError("請先貼上一行三欄資料：運輸方式、出發地英文代碼、目的地英文代碼。");
       return;
     }
     const lines = text.split(/\r?\n/).filter((line) => line.trim());
@@ -138,10 +155,10 @@ export default function Home() {
     const parsed = lines.map((line) => line.split(delimiter).map((cell) => cell.trim().replace(/^"|"$/g, "")));
     const data = parsed.filter((line) => normalize(line[0]) !== "報單號碼" && line.some((cell) => normalize(cell) !== ""));
     if (!data.length) {
-      setError("請貼上至少一行資料；不需要貼欄位名稱。每行請依固定順序以 Tab 分隔：報單號碼、出口港（裝貨港）、出口港位置、進口港（卸存地）、港口位置、預估運輸距離、查詢連結、查詢畫面、案件日期、運輸項目、總重量。");
+      setError("請貼上至少一行三欄資料：運輸方式、出發地英文代碼、目的地英文代碼。");
       return;
     }
-    const rawHeaders = PASTE_HEADERS.concat(data[0].slice(PASTE_HEADERS.length).map((_, index) => `其他欄位${index + 1}`));
+    const rawHeaders = ["運輸方式", "出發地英文代碼", "目的地英文代碼"];
     setHeaders(rawHeaders);
     setRows(data.map((line) => Object.fromEntries(rawHeaders.map((header, index) => [header, line[index] ?? ""]))));
     setSheetName("貼上資料");
@@ -191,9 +208,9 @@ export default function Home() {
             <Button onClick={() => inputRef.current?.click()} variant="outline" className="choose-button"><FileSpreadsheet size={16} />{fileName ? "更換檔案" : "選擇檔案"}</Button>
             <Input ref={inputRef} type="file" accept=".xlsx,.xls" className="hidden-input" onChange={(event) => void loadFile(event.target.files?.[0])} />
           </div> : <div className="paste-card">
-            <div className="paste-heading"><div className="upload-icon"><ClipboardPaste size={22} /></div><div><strong>貼上資料列</strong><span>不需要欄位名稱；每行依固定欄位順序，以 Tab 或逗號分隔</span></div></div>
-            <textarea className="paste-area" value={pastedText} onChange={(event) => setPastedText(event.target.value)} placeholder="請直接貼上資料列，不需要欄位名稱……\n固定順序：報單號碼    出口港（裝貨港）    出口港位置    進口港（卸存地）    港口位置    …\nAA//15/G97/F0032    VALENCIA    西班牙 瓦倫西亞港    基隆港    基隆港    …" aria-label="貼上 Excel 文字內容" />
-            <div className="paste-actions"><span>每行一筆資料；欄位順序請依畫面提示</span><Button onClick={loadPastedText} className="paste-button"><ClipboardPaste size={16} />讀取貼上資料</Button></div>
+            <div className="paste-heading"><div className="upload-icon"><ClipboardPaste size={22} /></div><div><strong>貼上三欄資料</strong><span>運輸方式、出發地英文代碼、目的地英文代碼</span></div></div>
+            <textarea className="paste-area" value={pastedText} onChange={(event) => setPastedText(event.target.value)} placeholder="請貼上三欄資料，不需要欄位名稱……\n海運    Valencia,+Valencian+Community,+ES    Keelung,+TW\n海運    Valencia,+Valencian+Community,+ES    Keelung,+TW" aria-label="貼上 Excel 文字內容" />
+            <div className="paste-actions"><span>每行一筆；Tab 或逗號分隔</span><Button onClick={loadPastedText} className="paste-button"><ClipboardPaste size={16} />讀取貼上資料</Button></div>
           </div>}
           {error && <div className="error-banner"><X size={16} />{error}</div>}
 
