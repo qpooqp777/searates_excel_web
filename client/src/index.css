@@ -91,7 +91,21 @@
 .subhead { margin: 0; color: #6a839b; font-size: 13px; }
 .secure-badge { gap: 8px; color: #4c6b85; background: #fff; border-color: #d8e6f2; padding: 8px 10px; }
 .secure-badge .status-dot { width: 6px; height: 6px; box-shadow: none; }
+.input-tabs { display: flex; gap: 4px; padding: 4px; margin-bottom: 10px; width: fit-content; border: 1px solid #d7e5f0; border-radius: 7px; background: #edf5fb; }
+.input-tab { display: inline-flex; align-items: center; gap: 7px; padding: 8px 13px; border: 0; border-radius: 5px; background: transparent; color: #6d879e; font-size: 12px; font-weight: 700; transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease; }
+.input-tab:hover { color: #216b9f; }
+.input-tab.selected { color: #175f98; background: #fff; box-shadow: 0 2px 6px rgba(31, 74, 111, 0.1); }
 .upload-card { display: flex; align-items: center; gap: 15px; padding: 18px 20px; min-height: 88px; border: 1px dashed #91b9d7; border-radius: 8px; background: #fff; transition: border-color 180ms ease, box-shadow 180ms ease; }
+.paste-card { padding: 18px 20px; border: 1px solid #b8d2e5; border-radius: 8px; background: #fff; box-shadow: 0 5px 14px rgba(31, 74, 111, 0.04); }
+.paste-heading { display: flex; align-items: center; gap: 12px; }
+.paste-heading strong { display: block; color: #20486e; font-size: 14px; }
+.paste-heading span { display: block; margin-top: 4px; color: #7893aa; font-size: 12px; }
+.paste-area { display: block; width: 100%; min-height: 148px; margin-top: 16px; padding: 13px 14px; resize: vertical; border: 1px solid #d5e3ed; border-radius: 6px; outline: none; background: #fbfdff; color: #355977; font-family: "IBM Plex Mono", monospace; font-size: 12px; line-height: 1.65; transition: border-color 160ms ease, box-shadow 160ms ease; }
+.paste-area:focus { border-color: #6ca7ce; box-shadow: 0 0 0 3px #e6f3fc; }
+.paste-area::placeholder { color: #a5b8c8; }
+.paste-actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 12px; color: #839bad; font-size: 11px; }
+.paste-button { gap: 8px; background: #e36b3d; color: #fff; box-shadow: 0 4px 10px rgba(227, 107, 61, 0.18); }
+.paste-button:hover { background: #c95732; }
 .upload-card:hover { border-color: #277bb9; box-shadow: 0 8px 20px rgba(29, 91, 142, 0.08); }
 .upload-icon { width: 42px; height: 42px; display: grid; place-items: center; color: #1769aa; background: #eaf6ff; border-radius: 7px; }
 .upload-copy { flex: 1; min-width: 0; display: grid; gap: 4px; }
@@ -156,6 +170,10 @@ tr:hover td { background: #fbfdff; }
   .secure-badge { margin-top: 14px; }
   .content-heading h2 { font-size: 28px; }
   .upload-card { align-items: flex-start; flex-wrap: wrap; }
+  .input-tabs { width: 100%; }
+  .input-tab { flex: 1; justify-content: center; }
+  .paste-actions { align-items: stretch; flex-direction: column; }
+  .paste-button { width: 100%; }
   .upload-copy { max-width: calc(100% - 60px); }
   .choose-button { width: 100%; }
   .stat-grid { gap: 8px; }

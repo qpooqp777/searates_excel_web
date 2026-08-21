@@ -1,7 +1,7 @@
 // Chartroom Ledger（簡潔藍白版）：Excel → 地點對照 → SeaRates URL → 匯出。
 import { useMemo, useRef, useState } from "react";
 import * as XLSX from "xlsx";
-import { Check, Download, FileSpreadsheet, Link2, MapPin, Upload, X } from "lucide-react";
+import { Check, ClipboardPaste, Download, FileSpreadsheet, Link2, MapPin, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -64,6 +64,8 @@ export default function Home() {
   const [sheetName, setSheetName] = useState("");
   const [error, setError] = useState("");
   const [isReady, setIsReady] = useState(false);
+  const [inputMode, setInputMode] = useState<"excel" | "text">("excel");
+  const [pastedText, setPastedText] = useState("");
 
   const outputRows = useMemo(() => {
     if (!rows.length) return [];
@@ -122,6 +124,29 @@ export default function Home() {
     }
   };
 
+  const loadPastedText = () => {
+    setError("");
+    const text = pastedText.trim();
+    if (!text) {
+      setError("請先貼上包含欄位標題與資料列的文字內容。");
+      return;
+    }
+    const lines = text.split(/\r?\n/).filter((line) => line.trim());
+    const delimiter = lines[0].includes("\t") ? "\t" : lines[0].includes(",") ? "," : "\t";
+    const parsed = lines.map((line) => line.split(delimiter).map((cell) => cell.trim().replace(/^"|"$/g, "")));
+    const rawHeaders = (parsed[0] || []).map((cell) => normalize(cell));
+    const data = parsed.slice(1).filter((line) => line.some((cell) => normalize(cell) !== ""));
+    if (!rawHeaders.length || !data.length) {
+      setError("文字內容至少需要第一列欄位標題與一列資料，建議直接從 Excel 複製整個表格後貼上。");
+      return;
+    }
+    setHeaders(rawHeaders);
+    setRows(data.map((line) => Object.fromEntries(rawHeaders.map((header, index) => [header, line[index] ?? ""]))));
+    setSheetName("貼上資料");
+    setFileName("貼上文字資料.txt");
+    setIsReady(true);
+  };
+
   const exportFile = () => {
     if (!outputRows.length) return;
     const worksheet = XLSX.utils.json_to_sheet(outputRows, { header: resultHeaders });
@@ -154,12 +179,20 @@ export default function Home() {
         <section className="content-panel">
           <div className="content-heading"><div><p className="eyebrow">批次作業 · SeaRates</p><h2>Excel 轉 SeaRates 連結</h2><p className="subhead">欄位會在瀏覽器內完成對照，原始檔案不會離開你的裝置。</p></div><Badge variant="outline" className="secure-badge"><span className="status-dot" />安全處理</Badge></div>
 
-          <div className="upload-card" onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); void loadFile(event.dataTransfer.files[0]); }}>
+          <div className="input-tabs" role="tablist" aria-label="資料輸入方式">
+            <button type="button" role="tab" aria-selected={inputMode === "excel"} className={`input-tab ${inputMode === "excel" ? "selected" : ""}`} onClick={() => setInputMode("excel")}><FileSpreadsheet size={15} />上傳 Excel</button>
+            <button type="button" role="tab" aria-selected={inputMode === "text"} className={`input-tab ${inputMode === "text" ? "selected" : ""}`} onClick={() => setInputMode("text")}><ClipboardPaste size={15} />貼上文字</button>
+          </div>
+          {inputMode === "excel" ? <div className="upload-card" onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); void loadFile(event.dataTransfer.files[0]); }}>
             <div className="upload-icon"><Upload size={22} /></div>
             <div className="upload-copy"><strong>{fileName || "拖曳 Excel 檔案到這裡"}</strong><span>{fileName ? "已載入，可立即檢查並匯出" : "支援 .xlsx 與 .xls 格式"}</span></div>
             <Button onClick={() => inputRef.current?.click()} variant="outline" className="choose-button"><FileSpreadsheet size={16} />{fileName ? "更換檔案" : "選擇檔案"}</Button>
             <Input ref={inputRef} type="file" accept=".xlsx,.xls" className="hidden-input" onChange={(event) => void loadFile(event.target.files?.[0])} />
-          </div>
+          </div> : <div className="paste-card">
+            <div className="paste-heading"><div className="upload-icon"><ClipboardPaste size={22} /></div><div><strong>貼上 Excel 文字內容</strong><span>支援 Tab 分隔；也可使用逗號分隔</span></div></div>
+            <textarea className="paste-area" value={pastedText} onChange={(event) => setPastedText(event.target.value)} placeholder="請從 Excel 複製欄位標題與資料列，直接貼到這裡……\n例如：報單號碼    出口港（裝貨港）    港口位置\nAA//15/G97/F0032    VALENCIA    基隆港" aria-label="貼上 Excel 文字內容" />
+            <div className="paste-actions"><span>第一列需為欄位標題，後續每列一筆資料</span><Button onClick={loadPastedText} className="paste-button"><ClipboardPaste size={16} />讀取貼上資料</Button></div>
+          </div>}
           {error && <div className="error-banner"><X size={16} />{error}</div>}
 
           <div className="stat-grid">
