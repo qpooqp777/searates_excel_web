@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
+const PASTE_HEADERS = ["報單號碼", "出口港（裝貨港）", "出口港位置", "進口港（卸存地）", "港口位置", "預估運輸距離", "查詢連結", "查詢畫面", "案件日期", "運輸項目", "總重量"];
+
 const HEADER_CANDIDATES = {
   origin: ["出口港（裝貨港）", "出口港", "出發港"],
   destination: ["港口位置", "進口港（卸存地）", "目的港", "目的地"],
@@ -128,18 +130,18 @@ export default function Home() {
     setError("");
     const text = pastedText.trim();
     if (!text) {
-      setError("請先貼上包含欄位標題與資料列的文字內容。");
+      setError("請先貼上一行資料，不需要欄位名稱。");
       return;
     }
     const lines = text.split(/\r?\n/).filter((line) => line.trim());
     const delimiter = lines[0].includes("\t") ? "\t" : lines[0].includes(",") ? "," : "\t";
     const parsed = lines.map((line) => line.split(delimiter).map((cell) => cell.trim().replace(/^"|"$/g, "")));
-    const rawHeaders = (parsed[0] || []).map((cell) => normalize(cell));
-    const data = parsed.slice(1).filter((line) => line.some((cell) => normalize(cell) !== ""));
-    if (!rawHeaders.length || !data.length) {
-      setError("文字內容至少需要第一列欄位標題與一列資料，建議直接從 Excel 複製整個表格後貼上。");
+    const data = parsed.filter((line) => normalize(line[0]) !== "報單號碼" && line.some((cell) => normalize(cell) !== ""));
+    if (!data.length) {
+      setError("請貼上至少一行資料；不需要貼欄位名稱。每行請依固定順序以 Tab 分隔：報單號碼、出口港（裝貨港）、出口港位置、進口港（卸存地）、港口位置、預估運輸距離、查詢連結、查詢畫面、案件日期、運輸項目、總重量。");
       return;
     }
+    const rawHeaders = PASTE_HEADERS.concat(data[0].slice(PASTE_HEADERS.length).map((_, index) => `其他欄位${index + 1}`));
     setHeaders(rawHeaders);
     setRows(data.map((line) => Object.fromEntries(rawHeaders.map((header, index) => [header, line[index] ?? ""]))));
     setSheetName("貼上資料");
@@ -189,9 +191,9 @@ export default function Home() {
             <Button onClick={() => inputRef.current?.click()} variant="outline" className="choose-button"><FileSpreadsheet size={16} />{fileName ? "更換檔案" : "選擇檔案"}</Button>
             <Input ref={inputRef} type="file" accept=".xlsx,.xls" className="hidden-input" onChange={(event) => void loadFile(event.target.files?.[0])} />
           </div> : <div className="paste-card">
-            <div className="paste-heading"><div className="upload-icon"><ClipboardPaste size={22} /></div><div><strong>貼上 Excel 文字內容</strong><span>支援 Tab 分隔；也可使用逗號分隔</span></div></div>
-            <textarea className="paste-area" value={pastedText} onChange={(event) => setPastedText(event.target.value)} placeholder="請從 Excel 複製欄位標題與資料列，直接貼到這裡……\n例如：報單號碼    出口港（裝貨港）    港口位置\nAA//15/G97/F0032    VALENCIA    基隆港" aria-label="貼上 Excel 文字內容" />
-            <div className="paste-actions"><span>第一列需為欄位標題，後續每列一筆資料</span><Button onClick={loadPastedText} className="paste-button"><ClipboardPaste size={16} />讀取貼上資料</Button></div>
+            <div className="paste-heading"><div className="upload-icon"><ClipboardPaste size={22} /></div><div><strong>貼上資料列</strong><span>不需要欄位名稱；每行依固定欄位順序，以 Tab 或逗號分隔</span></div></div>
+            <textarea className="paste-area" value={pastedText} onChange={(event) => setPastedText(event.target.value)} placeholder="請直接貼上資料列，不需要欄位名稱……\n固定順序：報單號碼    出口港（裝貨港）    出口港位置    進口港（卸存地）    港口位置    …\nAA//15/G97/F0032    VALENCIA    西班牙 瓦倫西亞港    基隆港    基隆港    …" aria-label="貼上 Excel 文字內容" />
+            <div className="paste-actions"><span>每行一筆資料；欄位順序請依畫面提示</span><Button onClick={loadPastedText} className="paste-button"><ClipboardPaste size={16} />讀取貼上資料</Button></div>
           </div>}
           {error && <div className="error-banner"><X size={16} />{error}</div>}
 
