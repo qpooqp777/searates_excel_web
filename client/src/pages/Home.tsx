@@ -1,7 +1,7 @@
 // Chartroom Ledger（簡潔藍白版）：Excel → 地點對照 → SeaRates URL → 匯出。
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as XLSX from "xlsx";
-import { Check, ClipboardPaste, Download, FileSpreadsheet, Link2, MapPin, Upload, X } from "lucide-react";
+import { Check, ClipboardPaste, Download, FileSpreadsheet, Link2, MapPin, Upload, X, Plus, Pencil, Trash2, Search, Save, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -36,6 +36,9 @@ const LOCATIONS: Record<string, { sea?: string; air?: string; label: string }> =
   "DAMMAM": { air: "Ad Dammam, Eastern Province, SA", sea: "Ad Dammam, Eastern Province, SA", label: "Ad Dammam, Eastern Province, SA" },
 };
 
+type LocationEntry = { type: "seaport" | "airport"; sea?: string; air?: string; aliases: string[]; unlocode?: string; iata?: string };
+type LocationCodes = { schema_version: string; description?: string; locations: Record<string, LocationEntry> };
+
 const normalize = (value: unknown) => String(value ?? "").trim();
 const findHeader = (headers: string[], candidates: string[]) => candidates.find((x) => headers.includes(x));
 const findLocation = (raw: string) => {
@@ -65,6 +68,59 @@ function makeSeaRatesUrlFromCodes(from: string, to: string, mode: "海運" | "�
   return `https://www.searates.com/distance-time?from=${normalizeCode(from)}&to=${normalizeCode(to)}&transportMode=${transportMode}&routingMode=short&fromPlaceType=${placeType}&toPlaceType=${placeType}`;
 }
 
+function CodebookManager() {
+  const [codes, setCodes] = useState<LocationCodes | null>(null);
+  const [query, setQuery] = useState("");
+  const [editingKey, setEditingKey] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const blank: LocationEntry = { type: "seaport", aliases: [] };
+  const [form, setForm] = useState<LocationEntry>(blank);
+  const [name, setName] = useState("");
+
+  useEffect(() => {
+    fetch("/searates_location_codes.json")
+      .then((response) => response.json() as Promise<LocationCodes>)
+      .then(setCodes)
+      .catch(() => setError("代碼表載入失敗，請確認 JSON 檔案存在。"));
+  }, []);
+
+  const entries = useMemo(() => Object.entries(codes?.locations ?? {}).filter(([key, value]) => {
+    const needle = query.toLowerCase().trim();
+    if (!needle) return true;
+    return [key, value.type, value.sea, value.air, value.unlocode, value.iata, ...(value.aliases ?? [])].join(" ").toLowerCase().includes(needle);
+  }), [codes, query]);
+
+  const startNew = () => { setEditingKey(null); setName(""); setForm({ ...blank }); setError(""); };
+  const startEdit = (key: string, value: LocationEntry) => { setEditingKey(key); setName(key); setForm({ ...value, aliases: [...(value.aliases ?? [])] }); setError(""); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const saveEntry = () => {
+    const trimmed = name.trim();
+    if (!trimmed || !form.aliases?.length) { setError("請填寫中文／顯示名稱與至少一個別名。別名可使用逗號分隔。"); return; }
+    if (!form.sea && !form.air) { setError("海運或空運至少需要一個英文 URL 參數。"); return; }
+    setCodes((current) => current ? { ...current, locations: { ...current.locations, [trimmed]: { ...form, aliases: form.aliases.map((item) => item.trim()).filter(Boolean) } } } : current);
+    setEditingKey(trimmed); setName(trimmed); setError("");
+  };
+  const deleteEntry = (key: string) => { if (window.confirm(`確定刪除「${key}」？`)) { setCodes((current) => { if (!current) return current; const next = { ...current.locations }; delete next[key]; return { ...current, locations: next }; }); if (editingKey === key) startNew(); } };
+  const exportJson = () => { if (!codes) return; const blob = new Blob([JSON.stringify(codes, null, 2)], { type: "application/json;charset=utf-8" }); const url = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = url; anchor.download = "searates_location_codes_updated.json"; anchor.click(); URL.revokeObjectURL(url); };
+
+  return <div className="codebook-manager">
+    <div className="codebook-toolbar"><div><p className="eyebrow">JSON 對照表 · 本機編輯</p><h3>港口與機場代碼</h3><p className="subhead">修改只會留在目前瀏覽器工作階段，按匯出 JSON 才會下載檔案。</p></div><div className="codebook-actions"><Button variant="outline" onClick={startNew}><Plus size={15} />新增地點</Button><Button onClick={exportJson} disabled={!codes} className="export-button"><Download size={15} />匯出 JSON</Button></div></div>
+    {error && <div className="error-banner"><X size={16} />{error}</div>}
+    <div className="codebook-layout">
+      <Card className="editor-card"><CardHeader><div><p className="eyebrow">編輯欄位</p><CardTitle>{editingKey ? "修改地點" : "新增地點"}</CardTitle></div><Database size={19} className="section-icon" /></CardHeader><CardContent>
+        <label className="field-label">中文／顯示名稱<input className="code-input" value={name} onChange={(event) => setName(event.target.value)} placeholder="例如：新加坡港" /></label>
+        <label className="field-label">地點類型<select className="code-input" value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value as LocationEntry["type"] })}><option value="seaport">seaport · 海運</option><option value="airport">airport · 空運</option></select></label>
+        <label className="field-label">海運 URL 參數<input className="code-input mono" value={form.sea ?? ""} onChange={(event) => setForm({ ...form, sea: event.target.value || undefined })} placeholder="Singapore,+SG" /></label>
+        <label className="field-label">空運 URL 參數<input className="code-input mono" value={form.air ?? ""} onChange={(event) => setForm({ ...form, air: event.target.value || undefined })} placeholder="Singapore,+SG" /></label>
+        <label className="field-label">UN/LOCODE<input className="code-input" value={form.unlocode ?? ""} onChange={(event) => setForm({ ...form, unlocode: event.target.value || undefined })} placeholder="SGSIN" /></label>
+        <label className="field-label">IATA<input className="code-input" value={form.iata ?? ""} onChange={(event) => setForm({ ...form, iata: event.target.value || undefined })} placeholder="SIN" /></label>
+        <label className="field-label">別名（逗號分隔）<textarea className="code-input code-textarea" value={(form.aliases ?? []).join(", ")} onChange={(event) => setForm({ ...form, aliases: event.target.value.split(",") })} placeholder="SINGAPORE, Singapore" /></label>
+        <div className="editor-actions"><Button onClick={saveEntry} className="save-button"><Save size={15} />儲存對應</Button>{editingKey && <Button variant="outline" onClick={startNew}>清除編輯</Button>}</div>
+      </CardContent></Card>
+      <Card className="directory-card"><CardHeader><div><p className="eyebrow">目前資料 · {codes ? Object.keys(codes.locations).length : "—"} 筆</p><CardTitle>搜尋代碼表</CardTitle></div><div className="search-box"><Search size={15} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜尋名稱、別名或代碼" /></div></CardHeader><CardContent><div className="code-table-wrap"><table className="code-table"><thead><tr><th>名稱</th><th>類型</th><th>SeaRates 參數</th><th>代碼</th><th>操作</th></tr></thead><tbody>{entries.map(([key, value]) => <tr key={key}><td><strong>{key}</strong><small>{value.aliases?.slice(0, 3).join(" · ")}</small></td><td><span className={`mode-pill ${value.type === "airport" ? "air" : "sea"}`}>{value.type === "airport" ? "空運" : "海運"}</span></td><td className="mono code-cell">{value.sea || value.air || "—"}</td><td className="mono">{value.iata || value.unlocode || "—"}</td><td><div className="row-actions"><button type="button" onClick={() => startEdit(key, value)} aria-label={`修改 ${key}`}><Pencil size={14} /></button><button type="button" onClick={() => deleteEntry(key)} aria-label={`刪除 ${key}`}><Trash2 size={14} /></button></div></td></tr>)}</tbody></table>{!entries.length && <div className="empty-state"><Search size={24} /><strong>找不到符合的地點</strong><span>試試中文名稱、英文別名或 IATA／UN/LOCODE。</span></div>}</div></CardContent></Card>
+    </div>
+  </div>;
+}
+
 export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
@@ -75,6 +131,7 @@ export default function Home() {
   const [isReady, setIsReady] = useState(false);
   const [inputMode, setInputMode] = useState<"excel" | "text">("excel");
   const [pastedText, setPastedText] = useState("");
+  const [activeView, setActiveView] = useState<"generator" | "codebook">("generator");
 
   const outputRows = useMemo<Record<string, unknown>[]>(() => {
     if (!rows.length) return [];
@@ -198,6 +255,8 @@ export default function Home() {
         <section className="content-panel">
           <div className="content-heading"><div><p className="eyebrow">批次作業 · SeaRates</p><h2>Excel 轉 SeaRates 連結</h2><p className="subhead">欄位會在瀏覽器內完成對照，原始檔案不會離開你的裝置。</p></div><Badge variant="outline" className="secure-badge"><span className="status-dot" />安全處理</Badge></div>
 
+          <div className="workspace-tabs" role="tablist" aria-label="工具功能"><button type="button" className={`workspace-tab ${activeView === "generator" ? "selected" : ""}`} onClick={() => setActiveView("generator")}><Link2 size={15} />網址產生器</button><button type="button" className={`workspace-tab ${activeView === "codebook" ? "selected" : ""}`} onClick={() => setActiveView("codebook")}><Database size={15} />代碼表管理</button></div>
+          {activeView === "codebook" ? <CodebookManager /> : <>
           <div className="input-tabs" role="tablist" aria-label="資料輸入方式">
             <button type="button" role="tab" aria-selected={inputMode === "excel"} className={`input-tab ${inputMode === "excel" ? "selected" : ""}`} onClick={() => setInputMode("excel")}><FileSpreadsheet size={15} />上傳 Excel</button>
             <button type="button" role="tab" aria-selected={inputMode === "text"} className={`input-tab ${inputMode === "text" ? "selected" : ""}`} onClick={() => setInputMode("text")}><ClipboardPaste size={15} />貼上文字</button>
@@ -224,6 +283,7 @@ export default function Home() {
             {!outputRows.length ? <div className="empty-state"><FileSpreadsheet size={28} /><strong>等待 Excel 檔案</strong><span>上傳後會在這裡顯示前幾筆自動產生的結果。</span></div> : <div className="table-wrap"><table><thead><tr><th>列</th><th>運輸</th><th>出發地英文代碼</th><th>目的地英文代碼</th><th>SeaRates 查詢網址</th><th>狀態</th></tr></thead><tbody>{outputRows.slice(0, 8).map((row, index) => <tr key={index}><td className="row-index">{index + 2}</td><td><span className={`mode-pill ${row.運輸方式 === "空運" ? "air" : "sea"}`}>{row.運輸方式 as string}</span></td><td className="mono">{(row.出發地英文代碼 as string) || "—"}</td><td className="mono">{(row.目的地英文代碼 as string) || "—"}</td><td>{row.SeaRates查詢連結 ? <a className="url-link" href={row.SeaRates查詢連結 as string} target="_blank" rel="noreferrer"><Link2 size={14} />開啟查詢網址</a> : <span className="muted">尚待對照</span>}</td><td><span className={row.查詢狀態 === "完成" ? "success-state" : "pending-state"}>{row.查詢狀態 === "完成" && <Check size={13} />}{row.查詢狀態 as string}</span></td></tr>)}</tbody></table></div>}
           </CardContent></Card>
           {outputRows.length > 8 && <p className="table-footnote">目前預覽前 8 列，匯出時會包含全部 {outputRows.length} 列。</p>}
+          </>}
         </section>
       </main>
     </div>

@@ -1,0 +1,578 @@
+{
+  "schema_version": "1.0",
+  "description": "SeaRates 地點對照表；程式只依本檔案解析中文名稱與 SeaRates URL 參數。",
+  "locations": {
+    "基隆港": {
+      "type": "seaport",
+      "sea": "Keelung,+TW",
+      "aliases": [
+        "基隆",
+        "Keelung",
+        "KEELUNG"
+      ]
+    },
+    "台北港": {
+      "type": "seaport",
+      "sea": "Taipei,+Taipei,+TW",
+      "aliases": [
+        "臺北港",
+        "台北",
+        "Taipei",
+        "TAIPEI"
+      ]
+    },
+    "高雄港": {
+      "type": "seaport",
+      "sea": "Kaohsiung,+TW",
+      "aliases": [
+        "高雄",
+        "Kaohsiung",
+        "KAOHSIUNG"
+      ]
+    },
+    "西班牙 瓦倫西亞港": {
+      "type": "seaport",
+      "sea": "Valencia,+Valencian+Community,+ES",
+      "aliases": [
+        "瓦倫西亞港",
+        "VALENCIA",
+        "Valencia"
+      ]
+    },
+    "印度 蒙德拉港": {
+      "type": "seaport",
+      "sea": "Mundra,+Gujarat,+IN",
+      "aliases": [
+        "蒙德拉港",
+        "MUNDRA",
+        "Mundra"
+      ]
+    },
+    "印度 那瓦舍瓦港": {
+      "type": "seaport",
+      "sea": "Nhava+Sheva,+Maharashtra,+IN",
+      "aliases": [
+        "納瓦舍瓦港",
+        "NHAVA SHEVA",
+        "NHAVA SHEVA (JAWAHAR",
+        "NHAVA SHEVA JAWA"
+      ]
+    },
+    "阿曼 塞拉萊港": {
+      "type": "seaport",
+      "sea": "Salalah,+Dhofar,+OM",
+      "aliases": [
+        "薩拉拉港",
+        "SALALAH",
+        "Salalah"
+      ]
+    },
+    "阿曼 蘇哈爾港": {
+      "type": "seaport",
+      "sea": "Sohar,+Al+Batinah,+OM",
+      "aliases": [
+        "蘇哈爾港",
+        "SOHAR",
+        "Sohar"
+      ]
+    },
+    "沙烏地阿拉伯 吉達港": {
+      "type": "seaport",
+      "sea": "Jeddah,+Makkah+Region,+SA",
+      "aliases": [
+        "吉達港",
+        "JEDDAH",
+        "Jeddah"
+      ]
+    },
+    "印尼 雅加達港": {
+      "type": "seaport",
+      "sea": "Jakarta,+Java,+Java,+ID",
+      "air": "Jakarta,+Java,+Java,+ID",
+      "aliases": [
+        "雅加達",
+        "印尼 雅加達",
+        "JAKARTA, JAVA",
+        "JAKARTA"
+      ]
+    },
+    "西班牙 巴塞隆納港": {
+      "type": "seaport",
+      "sea": "Barcelona,+Catalonia,+ES",
+      "aliases": [
+        "巴塞隆納港",
+        "BARCELONA",
+        "Barcelona"
+      ]
+    },
+    "香港港": {
+      "type": "seaport",
+      "sea": "Hong+Kong,+HK",
+      "air": "Hong+Kong,+HK",
+      "aliases": [
+        "香港",
+        "HONG KONG",
+        "Hong Kong"
+      ]
+    },
+    "蘇卡諾哈達機場": {
+      "type": "airport",
+      "air": "Soekarno-Hatta+International+Airport,+Java,+ID",
+      "aliases": [
+        "SOEKARNO-HATTA APT",
+        "印尼 蘇加諾-哈達機場",
+        "蘇加諾-哈達機場"
+      ]
+    },
+    "畢爾包機場": {
+      "type": "airport",
+      "air": "Bilbao,+ES",
+      "aliases": [
+        "BILBAO",
+        "西班牙 畢爾包",
+        "畢爾包"
+      ]
+    },
+    "達曼機場": {
+      "type": "airport",
+      "air": "Ad+Dammam,+Eastern+Province,+SA",
+      "aliases": [
+        "DAMMAM",
+        "沙烏地阿拉伯 達曼港",
+        "達曼"
+      ]
+    },
+    "雅加達機場": {
+      "type": "airport",
+      "air": "Jakarta,+Java,+Java,+ID",
+      "aliases": [
+        "JAKARTA, JAVA/TANI",
+        "雅加達機場"
+      ]
+    },
+    "香港機場": {
+      "type": "airport",
+      "air": "Hong+Kong,+HK",
+      "aliases": [
+        "HONG KONG 機場"
+      ]
+    },
+    "桃園機場": {
+      "type": "airport",
+      "air": "Taoyuan,+Taoyuan+City,+TW",
+      "aliases": [
+        "桃園",
+        "Taoyuan",
+        "TAOYUAN"
+      ]
+    },
+    "高雄機場": {
+      "type": "airport",
+      "air": "Kaohsiung,+TW",
+      "aliases": [
+        "高雄機場",
+        "Kaohsiung Airport"
+      ]
+    },
+    "荷蘭 鹿特丹港": {
+      "type": "seaport",
+      "sea": "Rotterdam,+South+Holland,+NL",
+      "unlocode": "NLRTM",
+      "aliases": [
+        "ROTTERDAM",
+        "Rotterdam"
+      ]
+    },
+    "比利時 安特衛普港": {
+      "type": "seaport",
+      "sea": "Antwerp,+Flanders,+BE",
+      "unlocode": "BEANR",
+      "aliases": [
+        "ANTWERP",
+        "Antwerp"
+      ]
+    },
+    "德國 漢堡港": {
+      "type": "seaport",
+      "sea": "Hamburg,+DE",
+      "unlocode": "DEHAM",
+      "aliases": [
+        "HAMBURG",
+        "Hamburg"
+      ]
+    },
+    "德國 不來梅哈芬港": {
+      "type": "seaport",
+      "sea": "Bremerhaven,+Bremen,+DE",
+      "unlocode": "DEBRV",
+      "aliases": [
+        "BREMERHAVEN",
+        "Bremerhaven"
+      ]
+    },
+    "英國 費利克斯托港": {
+      "type": "seaport",
+      "sea": "Felixstowe,+England,+GB",
+      "unlocode": "GBFXT",
+      "aliases": [
+        "FELIXSTOWE",
+        "Felixstowe"
+      ]
+    },
+    "英國 南安普敦港": {
+      "type": "seaport",
+      "sea": "Southampton,+England,+GB",
+      "unlocode": "GBSOU",
+      "aliases": [
+        "SOUTHAMPTON",
+        "Southampton"
+      ]
+    },
+    "法國 勒阿弗爾港": {
+      "type": "seaport",
+      "sea": "Le+Havre,+Normandy,+FR",
+      "unlocode": "FRLEH",
+      "aliases": [
+        "LE HAVRE",
+        "Le Havre"
+      ]
+    },
+    "法國 馬賽港": {
+      "type": "seaport",
+      "sea": "Marseille,+Provence-Alpes-Cote+d%27Azur,+FR",
+      "unlocode": "FRMRS",
+      "aliases": [
+        "MARSEILLE",
+        "Marseille"
+      ]
+    },
+    "義大利 熱那亞港": {
+      "type": "seaport",
+      "sea": "Genoa,+Liguria,+IT",
+      "unlocode": "ITGOA",
+      "aliases": [
+        "GENOA",
+        "Genoa"
+      ]
+    },
+    "希臘 比雷埃夫斯港": {
+      "type": "seaport",
+      "sea": "Piraeus,+Attica,+GR",
+      "unlocode": "GRPIR",
+      "aliases": [
+        "PIRAEUS",
+        "Piraeus"
+      ]
+    },
+    "義大利 焦亞陶羅港": {
+      "type": "seaport",
+      "sea": "Gioia+Tauro,+Calabria,+IT",
+      "unlocode": "ITGIT",
+      "aliases": [
+        "GIOIA TAURO",
+        "Gioia Tauro"
+      ]
+    },
+    "西班牙 阿爾赫西拉斯港": {
+      "type": "seaport",
+      "sea": "Algeciras,+Andalusia,+ES",
+      "unlocode": "ESALG",
+      "aliases": [
+        "ALGECIRAS",
+        "Algeciras"
+      ]
+    },
+    "葡萄牙 里斯本港": {
+      "type": "seaport",
+      "sea": "Lisbon,+Lisbon,+PT",
+      "unlocode": "PTLIS",
+      "aliases": [
+        "LISBON",
+        "Lisbon"
+      ]
+    },
+    "波蘭 格但斯克港": {
+      "type": "seaport",
+      "sea": "Gdansk,+Pomeranian+Voivodeship,+PL",
+      "unlocode": "PLGDN",
+      "aliases": [
+        "GDANSK",
+        "Gdansk"
+      ]
+    },
+    "羅馬尼亞 康斯坦察港": {
+      "type": "seaport",
+      "sea": "Constanta,+Constanta,+RO",
+      "unlocode": "ROCND",
+      "aliases": [
+        "CONSTANTA",
+        "Constanta"
+      ]
+    },
+    "土耳其 伊斯坦堡港": {
+      "type": "seaport",
+      "sea": "Istanbul,+TR",
+      "unlocode": "TRIST",
+      "aliases": [
+        "ISTANBUL",
+        "Istanbul"
+      ]
+    },
+    "新加坡港": {
+      "type": "seaport",
+      "sea": "Singapore,+SG",
+      "unlocode": "SGSIN",
+      "aliases": [
+        "SINGAPORE",
+        "Singapore"
+      ]
+    },
+    "馬來西亞 巴生港": {
+      "type": "seaport",
+      "sea": "Port+Klang,+Selangor,+MY",
+      "unlocode": "MYPKG",
+      "aliases": [
+        "KLANG",
+        "PORT KLANG",
+        "Port Klang"
+      ]
+    },
+    "馬來西亞 丹戎帕拉帕斯港": {
+      "type": "seaport",
+      "sea": "Tanjung+Pelepas,+Johor,+MY",
+      "unlocode": "MYTPP",
+      "aliases": [
+        "TANJUNG PELEPAS",
+        "Tanjung Pelepas"
+      ]
+    },
+    "泰國 林查班港": {
+      "type": "seaport",
+      "sea": "Laem+Chabang,+Chon+Buri,+TH",
+      "unlocode": "THLCH",
+      "aliases": [
+        "LAEM CHABANG",
+        "Laem Chabang"
+      ]
+    },
+    "越南 胡志明港": {
+      "type": "seaport",
+      "sea": "Ho+Chi+Minh+City,+VN",
+      "unlocode": "VNSGN",
+      "aliases": [
+        "CAT LAI",
+        "HO CHI MINH",
+        "Ho Chi Minh"
+      ]
+    },
+    "越南 海防港": {
+      "type": "seaport",
+      "sea": "Hai+Phong,+VN",
+      "unlocode": "VNHPH",
+      "aliases": [
+        "HAI PHONG",
+        "Hai Phong"
+      ]
+    },
+    "菲律賓 馬尼拉港": {
+      "type": "seaport",
+      "sea": "Manila,+Metro+Manila,+PH",
+      "unlocode": "PHMNL",
+      "aliases": [
+        "MANILA",
+        "Manila"
+      ]
+    },
+    "印尼 泗水港": {
+      "type": "seaport",
+      "sea": "Surabaya,+East+Java,+ID",
+      "unlocode": "IDSUB",
+      "aliases": [
+        "SURABAYA",
+        "Surabaya"
+      ]
+    },
+    "緬甸 仰光港": {
+      "type": "seaport",
+      "sea": "Yangon,+MM",
+      "unlocode": "MMRGN",
+      "aliases": [
+        "THILAWA",
+        "YANGON",
+        "Yangon"
+      ]
+    },
+    "柬埔寨 西哈努克港": {
+      "type": "seaport",
+      "sea": "Sihanoukville,+KH",
+      "unlocode": "KHSIH",
+      "aliases": [
+        "SIHANOUKVILLE",
+        "Sihanoukville"
+      ]
+    },
+    "英國 希斯洛機場": {
+      "type": "airport",
+      "air": "London,+England,+GB",
+      "iata": "LHR",
+      "aliases": [
+        "LHR",
+        "LONDON HEATHROW"
+      ]
+    },
+    "法國 巴黎戴高樂機場": {
+      "type": "airport",
+      "air": "Paris,+Ile-de-France,+FR",
+      "iata": "CDG",
+      "aliases": [
+        "CDG",
+        "PARIS CDG"
+      ]
+    },
+    "荷蘭 阿姆斯特丹機場": {
+      "type": "airport",
+      "air": "Amsterdam,+North+Holland,+NL",
+      "iata": "AMS",
+      "aliases": [
+        "AMS",
+        "AMSTERDAM SCHIPHOL"
+      ]
+    },
+    "德國 法蘭克福機場": {
+      "type": "airport",
+      "air": "Frankfurt,+Hesse,+DE",
+      "iata": "FRA",
+      "aliases": [
+        "FRA",
+        "FRANKFURT"
+      ]
+    },
+    "西班牙 馬德里機場": {
+      "type": "airport",
+      "air": "Madrid,+Community+of+Madrid,+ES",
+      "iata": "MAD",
+      "aliases": [
+        "MAD",
+        "MADRID"
+      ]
+    },
+    "義大利 羅馬機場": {
+      "type": "airport",
+      "air": "Rome,+Lazio,+IT",
+      "iata": "FCO",
+      "aliases": [
+        "FCO",
+        "ROME FIUMICINO"
+      ]
+    },
+    "義大利 米蘭機場": {
+      "type": "airport",
+      "air": "Milan,+Lombardy,+IT",
+      "iata": "MXP",
+      "aliases": [
+        "MILAN MALPENSA",
+        "MXP"
+      ]
+    },
+    "比利時 布魯塞爾機場": {
+      "type": "airport",
+      "air": "Brussels,+Brussels-Capital,+BE",
+      "iata": "BRU",
+      "aliases": [
+        "BRU",
+        "BRUSSELS"
+      ]
+    },
+    "葡萄牙 里斯本機場": {
+      "type": "airport",
+      "air": "Lisbon,+Lisbon,+PT",
+      "iata": "LIS",
+      "aliases": [
+        "LIS",
+        "LISBON AIRPORT"
+      ]
+    },
+    "土耳其 伊斯坦堡機場": {
+      "type": "airport",
+      "air": "Istanbul,+TR",
+      "iata": "IST",
+      "aliases": [
+        "IST",
+        "ISTANBUL AIRPORT"
+      ]
+    },
+    "新加坡樟宜機場": {
+      "type": "airport",
+      "air": "Singapore,+SG",
+      "iata": "SIN",
+      "aliases": [
+        "SIN",
+        "SINGAPORE CHANGI"
+      ]
+    },
+    "泰國曼谷機場": {
+      "type": "airport",
+      "air": "Bangkok,+TH",
+      "iata": "BKK",
+      "aliases": [
+        "BANGKOK",
+        "BKK"
+      ]
+    },
+    "馬來西亞吉隆坡機場": {
+      "type": "airport",
+      "air": "Kuala+Lumpur,+Selangor,+MY",
+      "iata": "KUL",
+      "aliases": [
+        "KUALA LUMPUR",
+        "KUL"
+      ]
+    },
+    "菲律賓馬尼拉機場": {
+      "type": "airport",
+      "air": "Manila,+Metro+Manila,+PH",
+      "iata": "MNL",
+      "aliases": [
+        "MANILA AIRPORT",
+        "MNL"
+      ]
+    },
+    "越南胡志明市機場": {
+      "type": "airport",
+      "air": "Ho+Chi+Minh+City,+VN",
+      "iata": "SGN",
+      "aliases": [
+        "HO CHI MINH AIRPORT",
+        "SGN"
+      ]
+    },
+    "越南河內機場": {
+      "type": "airport",
+      "air": "Hanoi,+VN",
+      "iata": "HAN",
+      "aliases": [
+        "HAN",
+        "HANOI"
+      ]
+    },
+    "印尼峇里島機場": {
+      "type": "airport",
+      "air": "Denpasar,+Bali,+ID",
+      "iata": "DPS",
+      "aliases": [
+        "BALI",
+        "DENPASAR",
+        "DPS"
+      ]
+    },
+    "印尼雅加達機場": {
+      "type": "airport",
+      "air": "Jakarta,+Java,+Java,+ID",
+      "iata": "CGK",
+      "aliases": [
+        "CGK",
+        "JAKARTA AIRPORT"
+      ]
+    }
+  }
+}
