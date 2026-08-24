@@ -51,3 +51,6 @@
 - [x] 代碼管理新增貼上 SeaRates URL 自動分析
 - [x] 依 URL 的 sea／air 與地點類型預填代碼表表單
 - [x] 驗證 Salalah → Keelung URL 可新增或更新 JSON
+- [x] 修正 URL 套用時 location 未找到造成的 undefined.aliases
+- [x] 加入無效或缺失地點的安全錯誤提示
+- [x] 回歸測試既有地點與新地點 URL 套用

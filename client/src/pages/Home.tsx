@@ -271,7 +271,8 @@ function CodebookManager() {
     for (const point of urlAnalysis.points) {
       let key = point.existingKey;
       const city = point.raw.split(",")[0].trim() || point.raw;
-      if (!key) {
+      const current = key ? nextLocations[key] : undefined;
+      if (!current) {
         const base = `${city}${point.type === "airport" ? "機場" : "港"}`;
         key = base;
         let suffix = 2;
@@ -284,9 +285,8 @@ function CodebookManager() {
         created.push(key);
         continue;
       }
-      const current = nextLocations[key];
       const aliases = Array.from(new Set([...(current.aliases ?? []), city, point.raw].filter(Boolean)));
-      nextLocations[key] = { ...current, type: point.type, [point.field]: canonicalCode(point.raw), aliases };
+      nextLocations[key as string] = { ...current, type: point.type, [point.field]: canonicalCode(point.raw), aliases };
       updated.push(`${key} · ${point.field}`);
     }
     setCodes({ ...codes, locations: nextLocations });
