@@ -49,18 +49,6 @@ const findLocation = (raw: string) => {
   return key ? LOCATIONS[key] : undefined;
 };
 
-function makeSeaRatesUrl(from: string, to: string, mode: "海運" | "空運") {
-  const params = new URLSearchParams({
-    from,
-    to,
-    transportMode: mode === "空運" ? "Air" : "Sea",
-    routingMode: "short",
-    fromPlaceType: mode === "空運" ? "airport" : "seaport",
-    toPlaceType: mode === "空運" ? "airport" : "seaport",
-  });
-  return `https://www.searates.com/distance-time?${params.toString()}`;
-}
-
 function makeSeaRatesUrlFromCodes(from: string, to: string, mode: "海運" | "空運") {
   const normalizeCode = (value: string) => value.trim().replace(/\s+/g, "+");
   const transportMode = mode === "空運" ? "Air" : "Sea";
@@ -307,15 +295,20 @@ export default function Home() {
     }
     const originHeader = findHeader(headers, HEADER_CANDIDATES.origin);
     const destinationHeader = findHeader(headers, HEADER_CANDIDATES.destination);
+    const transportModeHeader = findHeader(headers, ["運輸方式", "運輸模式", "運輸類型", "mode", "Mode"]);
     return rows.map((row) => {
       const originRaw = normalize(originHeader ? row[originHeader] : "");
       const destinationRaw = normalize(destinationHeader ? row[destinationHeader] : "");
-      const mode: "海運" | "空運" = destinationRaw.includes("機場") ? "空運" : "海運";
-      const origin = findLocation(originRaw);
-      const destination = findLocation(destinationRaw);
-      const from = origin?.[mode === "空運" ? "air" : "sea"];
-      const to = destination?.[mode === "空運" ? "air" : "sea"];
-      const url = from && to ? makeSeaRatesUrl(from, to, mode) : "";
+      const declaredMode = normalize(transportModeHeader ? row[transportModeHeader] : row.運輸方式).toLowerCase();
+      const mode: "海運" | "空運" = declaredMode ? (declaredMode.includes("air") || declaredMode.includes("空") ? "空運" : "海運") : destinationRaw.includes("機場") ? "空運" : "海運";
+      const jsonOrigin = findJsonLocation(locationCodes, originRaw, mode);
+      const jsonDestination = findJsonLocation(locationCodes, destinationRaw, mode);
+      const origin = jsonOrigin ?? findLocation(originRaw);
+      const destination = jsonDestination ?? findLocation(destinationRaw);
+      const field = mode === "空運" ? "air" : "sea";
+      const from = origin?.[field];
+      const to = destination?.[field];
+      const url = from && to ? makeSeaRatesUrlFromCodes(from, to, mode) : "";
       return {
         ...row,
         運輸方式: mode,

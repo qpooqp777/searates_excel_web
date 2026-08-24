@@ -45,3 +45,6 @@
 - [x] 修正三欄貼上改用 JSON locations 與 aliases 查找
 - [x] 依海運／空運讀取地點的 sea／air 欄位
 - [x] 驗證 SALALAH → 基隆港 產生正確網址
+- [x] 修正 Excel 上傳依 JSON locations 查找地點
+- [x] 空運 Excel 讀取來源與目的地的 air 欄位
+- [x] 驗證空運 Excel 與海運 Excel 產生正確網址（已完成 JSON 與建置驗證）
