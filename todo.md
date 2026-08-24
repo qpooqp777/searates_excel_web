@@ -48,3 +48,6 @@
 - [x] 修正 Excel 上傳依 JSON locations 查找地點
 - [x] 空運 Excel 讀取來源與目的地的 air 欄位
 - [x] 驗證空運 Excel 與海運 Excel 產生正確網址（已完成 JSON 與建置驗證）
+- [x] 代碼管理新增貼上 SeaRates URL 自動分析
+- [x] 依 URL 的 sea／air 與地點類型預填代碼表表單
+- [x] 驗證 Salalah → Keelung URL 可新增或更新 JSON

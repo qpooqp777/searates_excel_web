@@ -89,6 +89,25 @@ GitHub 儲存庫右側的 **About** 區塊已設定以下資訊，訪客可由�
 
 > 網頁版的資料處理在瀏覽器內完成。使用者可在「代碼表管理」分頁編輯對照資料，修改內容會留在目前瀏覽器工作階段，必須按「匯出 JSON」才會下載成檔案。
 
+### 從 SeaRates 網址自動建立／修正代碼
+
+在「代碼表管理」分頁的「從 SeaRates 網址建立代碼」區塊貼上完整的 SeaRates `/distance-time` 網址，按「分析網址」。系統會解析 `from`、`to`、`transportMode`、`fromPlaceType` 與 `toPlaceType`，並依運輸方式決定要讀取或更新 `sea`／`air` 欄位。
+
+分析結果會顯示每個地點是否已對應到現有 JSON location：
+
+1. 已找到的地點會保留原本的中文名稱，並把 URL 參數更新到對應的 `sea` 或 `air`。
+2. 尚未找到的地點會以 URL 的城市名稱建立暫用名稱，並自動加入城市名稱與完整 URL 值作為 aliases。
+3. 確認分析結果正確後按「套用到 JSON」，最後按「匯出 JSON」下載更新後的代碼表。
+4. 需要確認網址本身時，可按「新分頁開啟」；這不會自動替代 JSON，必須由使用者確認後再套用。
+
+範例網址：
+
+```text
+https://www.searates.com/distance-time?from=Salalah,+Dhofar+Governorate,+OM&to=Keelung,+TW&transportMode=Sea&routingMode=short&fromPlaceType=seaport&toPlaceType=seaport
+```
+
+這個範例會辨識為海運，將 `Salalah, Dhofar Governorate, OM` 對應至「阿曼 塞拉萊港」的 `sea`，並將 `Keelung, TW` 對應至「基隆港」的 `sea`。空運網址則會依 `airport` 與 `transportMode=Air` 使用 `air` 欄位。
+
 ![網頁版介面預覽](docs/images/home-preview.png)
 
 ## Excel 輸入欄位

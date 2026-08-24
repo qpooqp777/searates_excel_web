@@ -205,11 +205,30 @@ function UrlValidator() {
   </div>;
 }
 
+type CodebookUrlPoint = {
+  side: "from" | "to";
+  label: string;
+  raw: string;
+  field: "sea" | "air";
+  type: LocationEntry["type"];
+  existingKey?: string;
+};
+
+type CodebookUrlAnalysis = {
+  url: string;
+  mode: "Sea" | "Air";
+  field: "sea" | "air";
+  points: CodebookUrlPoint[];
+};
+
 function CodebookManager() {
   const [codes, setCodes] = useState<LocationCodes | null>(null);
   const [query, setQuery] = useState("");
+  const [codebookUrl, setCodebookUrl] = useState(EXAMPLE_CORRECT_URL);
+  const [urlAnalysis, setUrlAnalysis] = useState<CodebookUrlAnalysis | null>(null);
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const blank: LocationEntry = { type: "seaport", aliases: [] };
   const [form, setForm] = useState<LocationEntry>(blank);
   const [name, setName] = useState("");
@@ -227,6 +246,54 @@ function CodebookManager() {
     return [key, value.type, value.sea, value.air, value.unlocode, value.iata, ...(value.aliases ?? [])].join(" ").toLowerCase().includes(needle);
   }), [codes, query]);
 
+  const analyzeCodebookUrl = () => {
+    setError("");
+    setMessage("");
+    const parsed = parseSeaRatesUrl(codebookUrl);
+    if ("error" in parsed) { setUrlAnalysis(null); setError(parsed.error); return; }
+    if (!parsed.parts.from || !parsed.parts.to) { setUrlAnalysis(null); setError("網址缺少 from 或 to 參數，無法建立代碼表資料。"); return; }
+    const mode: "Sea" | "Air" = parsed.parts.transportMode.toLowerCase() === "air" || parsed.parts.fromPlaceType === "airport" || parsed.parts.toPlaceType === "airport" ? "Air" : "Sea";
+    const field = mode === "Air" ? "air" : "sea";
+    const type: LocationEntry["type"] = mode === "Air" ? "airport" : "seaport";
+    const points: CodebookUrlPoint[] = [
+      { side: "from", label: "出發地", raw: parsed.parts.from, field, type, existingKey: findCodebookKey(codes ?? { locations: {}, schema_version: "" }, parsed.parts.from, mode) },
+      { side: "to", label: "目的地", raw: parsed.parts.to, field, type, existingKey: findCodebookKey(codes ?? { locations: {}, schema_version: "" }, parsed.parts.to, mode) },
+    ];
+    setUrlAnalysis({ url: parsed.url, mode, field, points });
+  };
+
+  const applyCodebookUrl = () => {
+    if (!codes || !urlAnalysis) { setError("請先貼上網址並完成分析。"); return; }
+    const nextLocations = { ...codes.locations };
+    const usedKeys = new Set(Object.keys(nextLocations));
+    const updated: string[] = [];
+    const created: string[] = [];
+    for (const point of urlAnalysis.points) {
+      let key = point.existingKey;
+      const city = point.raw.split(",")[0].trim() || point.raw;
+      if (!key) {
+        const base = `${city}${point.type === "airport" ? "機場" : "港"}`;
+        key = base;
+        let suffix = 2;
+        while (usedKeys.has(key)) key = `${base} ${suffix++}`;
+        usedKeys.add(key);
+        const aliases = Array.from(new Set([city, point.raw]));
+        nextLocations[key] = point.field === "air"
+          ? { type: point.type, air: canonicalCode(point.raw), aliases }
+          : { type: point.type, sea: canonicalCode(point.raw), aliases };
+        created.push(key);
+        continue;
+      }
+      const current = nextLocations[key];
+      const aliases = Array.from(new Set([...(current.aliases ?? []), city, point.raw].filter(Boolean)));
+      nextLocations[key] = { ...current, type: point.type, [point.field]: canonicalCode(point.raw), aliases };
+      updated.push(`${key} · ${point.field}`);
+    }
+    setCodes({ ...codes, locations: nextLocations });
+    setMessage(`已${updated.length ? `更新 ${updated.join("、")}` : "完成既有地點處理"}${created.length ? `，新增 ${created.join("、")}` : ""}。請按「匯出 JSON」保存變更。`);
+    setError("");
+  };
+
   const startNew = () => { setEditingKey(null); setName(""); setForm({ ...blank }); setError(""); };
   const startEdit = (key: string, value: LocationEntry) => { setEditingKey(key); setName(key); setForm({ ...value, aliases: [...(value.aliases ?? [])] }); setError(""); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const saveEntry = () => {
@@ -240,8 +307,11 @@ function CodebookManager() {
   const exportJson = () => { if (!codes) return; const blob = new Blob([JSON.stringify(codes, null, 2)], { type: "application/json;charset=utf-8" }); const url = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = url; anchor.download = "searates_location_codes_updated.json"; anchor.click(); URL.revokeObjectURL(url); };
 
   return <div className="codebook-manager">
-    <div className="codebook-toolbar"><div><p className="eyebrow">JSON 對照表 · 本機編輯</p><h3>港口與機場代碼</h3><p className="subhead">修改只會留在目前瀏覽器工作階段，按匯出 JSON 才會下載檔案。</p></div><div className="codebook-actions"><Button variant="outline" onClick={startNew}><Plus size={15} />新增地點</Button><Button onClick={exportJson} disabled={!codes} className="export-button"><Download size={15} />匯出 JSON</Button></div></div>
+    <Card className="url-import-card"><CardHeader><div><p className="eyebrow">URL 匯入 · 自動分析</p><CardTitle>從 SeaRates 網址建立代碼</CardTitle><p className="subhead">貼上完整 `/distance-time` 網址，系統會解析 from、to、運輸方式與地點類型，並找出對應的 JSON location。</p></div><ClipboardPaste size={19} className="section-icon" /></CardHeader><CardContent><textarea className="paste-area url-import-area" value={codebookUrl} onChange={(event) => setCodebookUrl(event.target.value)} aria-label="貼上 SeaRates URL" placeholder="https://www.searates.com/distance-time?..." /><div className="url-import-actions"><span>目前範例：Salalah → Keelung · Sea</span><div className="codebook-actions"><Button variant="outline" onClick={() => { const parsed = parseSeaRatesUrl(codebookUrl); if ("error" in parsed) { setError(parsed.error); return; } window.open(parsed.url, "_blank", "noopener,noreferrer"); }}><ExternalLink size={15} />新分頁開啟</Button><Button onClick={analyzeCodebookUrl}><Search size={15} />分析網址</Button></div></div></CardContent></Card>
     {error && <div className="error-banner"><X size={16} />{error}</div>}
+    {message && <div className="success-banner"><CheckCircle2 size={16} />{message}</div>}
+    {urlAnalysis && <Card className="url-analysis-card"><CardHeader><div><p className="eyebrow">分析結果 · {urlAnalysis.mode === "Air" ? "空運" : "海運"} · {urlAnalysis.field}</p><CardTitle>確認地點後套用到 JSON</CardTitle></div><Button onClick={applyCodebookUrl}><Save size={15} />套用到 JSON</Button></CardHeader><CardContent><div className="url-analysis-summary"><span className="mono">from={urlAnalysis.points[0].raw}</span><ArrowRight size={15} /><span className="mono">to={urlAnalysis.points[1].raw}</span></div><div className="diff-table-wrap"><table className="diff-table url-analysis-table"><thead><tr><th>位置</th><th>URL 解析值</th><th>JSON 對應</th></tr></thead><tbody>{urlAnalysis.points.map((point) => <tr key={point.side}><td><strong>{point.label}</strong><small>{point.type}</small></td><td className="mono diff-after">{point.raw}</td><td>{point.existingKey ? <><strong className="matched-code">已找到：{point.existingKey}</strong><small>將更新 `{point.field}`</small></> : <><strong className="new-code">尚未找到</strong><small>套用時將建立新地點</small></>}</td></tr>)}</tbody></table></div></CardContent></Card>}
+    <div className="codebook-toolbar"><div><p className="eyebrow">JSON 對照表 · 本機編輯</p><h3>港口與機場代碼</h3><p className="subhead">修改只會留在目前瀏覽器工作階段，按匯出 JSON 才會下載檔案。</p></div><div className="codebook-actions"><Button variant="outline" onClick={startNew}><Plus size={15} />新增地點</Button><Button onClick={exportJson} disabled={!codes} className="export-button"><Download size={15} />匯出 JSON</Button></div></div>
     <div className="codebook-layout">
       <Card className="editor-card"><CardHeader><div><p className="eyebrow">編輯欄位</p><CardTitle>{editingKey ? "修改地點" : "新增地點"}</CardTitle></div><Database size={19} className="section-icon" /></CardHeader><CardContent>
         <label className="field-label">中文／顯示名稱<input className="code-input" value={name} onChange={(event) => setName(event.target.value)} placeholder="例如：新加坡港" /></label>
