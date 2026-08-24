@@ -31,6 +31,18 @@ flowchart LR
     H --> I[匯出 Excel]
 ```
 
+## GitHub 專案 About 與使用說明
+
+GitHub 儲存庫右側的 **About** 區塊已設定以下資訊，訪客可由專案首頁直接進入線上工具或依 Topics 搜尋相關專案：
+
+| About 欄位 | 目前內容 |
+|---|---|
+| Description | 以 Excel、文字貼上或 Python／CLI 產生 SeaRates 海運與空運距離時間查詢網址的工具，支援 JSON 港口與機場代碼表管理。 |
+| Website | <https://qpooqp777.github.io/searates_excel_web/> |
+| Topics | `searates`、`excel`、`logistics`、`shipping`、`freight`、`react`、`vite`、`github-pages`、`python` |
+
+訪客建議先從 **Website** 開啟網頁版；若要在本機執行，請依下方安裝說明操作；若要批次處理 Excel，則可使用 `searates_excel_processor.py` 或 `searates_cli.py`。代碼表維護者可以直接查看 `searates_location_codes.json`，或在網頁版的「代碼表管理」分頁編輯後匯出更新檔。
+
 ## GitHub Pages 線上版本
 
 本專案已設定 GitHub Actions。每次推送到 `main` 分支後，Actions 會自動安裝依賴、執行 TypeScript 檢查、建置 Vite 靜態檔案，並發布到 GitHub Pages。

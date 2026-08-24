@@ -35,3 +35,6 @@
 - [x] 建立 GitHub Actions 自動建置與 Pages 部署 workflow
 - [x] 更新 README 的 GitHub Pages 網址與部署說明
 - [x] 驗證 Actions 執行狀態與 Pages 發布結果
+- [x] 設定 GitHub About 專案簡介、首頁與 Topics
+- [x] 補充 GitHub About 與使用說明文件
+- [x] 驗證公開儲存庫資訊
