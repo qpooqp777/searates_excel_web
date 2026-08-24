@@ -89,6 +89,15 @@ const EXAMPLE_ERROR_URL = "https://www.searates.com/distance-time?from=Salalah,+
 const EXAMPLE_CORRECT_URL = "https://www.searates.com/distance-time?from=Salalah,+Dhofar+Governorate,+OM&to=Keelung,+TW&transportMode=Sea&routingMode=short&fromPlaceType=seaport&toPlaceType=seaport";
 
 const canonicalCode = (value: string) => value.trim().replace(/\s+/g, "+");
+const normalizeLocationToken = (value: string) => value.trim().replace(/\+/g, " ").replace(/\s+/g, " ").toLowerCase();
+
+function findJsonLocation(codes: LocationCodes | null, raw: string, mode: "海運" | "空運") {
+  if (!codes) return undefined;
+  const field = mode === "空運" ? "air" : "sea";
+  const target = normalizeLocationToken(raw);
+  if (!target) return undefined;
+  return Object.entries(codes.locations).find(([name, entry]) => [name, entry[field], ...(entry.aliases ?? [])].filter(Boolean).some((candidate) => normalizeLocationToken(candidate as string) === target))?.[1];
+}
 
 function parseSeaRatesUrl(raw: string): { parts: SeaRatesUrlParts; url: string } | { error: string } {
   try {
@@ -271,7 +280,15 @@ export default function Home() {
   const [isReady, setIsReady] = useState(false);
   const [inputMode, setInputMode] = useState<"excel" | "text">("excel");
   const [pastedText, setPastedText] = useState("");
+  const [locationCodes, setLocationCodes] = useState<LocationCodes | null>(null);
   const [activeView, setActiveView] = useState<"generator" | "codebook" | "validator">("generator");
+
+  useEffect(() => {
+    fetch(`${import.meta.env.BASE_URL}searates_location_codes.json`)
+      .then((response) => response.json() as Promise<LocationCodes>)
+      .then(setLocationCodes)
+      .catch(() => setError("JSON 代碼表載入失敗，貼上地點將無法自動對應。"));
+  }, []);
 
   const outputRows = useMemo<Record<string, unknown>[]>(() => {
     if (!rows.length) return [];
@@ -279,10 +296,13 @@ export default function Home() {
       return rows.map((row) => {
         const rawMode = normalize(row.運輸方式).toLowerCase();
         const mode: "海運" | "空運" = rawMode.includes("air") || rawMode.includes("空") ? "空運" : "海運";
-        const from = normalize(row.出發地英文代碼);
-        const to = normalize(row.目的地英文代碼);
+        const fromRaw = normalize(row.出發地 ?? row.出發地英文代碼);
+        const toRaw = normalize(row.目的地 ?? row.目的地英文代碼);
+        const from = findJsonLocation(locationCodes, fromRaw, mode)?.[mode === "空運" ? "air" : "sea"] || "";
+        const to = findJsonLocation(locationCodes, toRaw, mode)?.[mode === "空運" ? "air" : "sea"] || "";
         const url = from && to ? makeSeaRatesUrlFromCodes(from, to, mode) : "";
-        return { ...row, 運輸方式: mode, SeaRates查詢連結: url, 查詢狀態: url ? "完成" : "待補三欄資料" };
+        const status = url ? "完成" : `待補對照：${fromRaw || "出發地"} → ${toRaw || "目的地"}`;
+        return { ...row, 運輸方式: mode, 出發地英文代碼: from, 目的地英文代碼: to, SeaRates查詢連結: url, 查詢狀態: status };
       });
     }
     const originHeader = findHeader(headers, HEADER_CANDIDATES.origin);
@@ -305,7 +325,7 @@ export default function Home() {
         查詢狀態: url ? "完成" : `待補對照：${originRaw || "出發地"} → ${destinationRaw || "目的地"}`,
       };
     });
-  }, [headers, inputMode, rows]);
+  }, [headers, inputMode, locationCodes, rows]);
 
   const resultHeaders = useMemo(() => {
     const extra = ["運輸方式", "出發地英文代碼", "目的地英文代碼", "SeaRates查詢連結", "查詢狀態"];
@@ -344,7 +364,7 @@ export default function Home() {
     setError("");
     const text = pastedText.trim();
     if (!text) {
-      setError("請先貼上一行三欄資料：運輸方式、出發地英文代碼、目的地英文代碼。");
+      setError("請先貼上一行三欄資料：運輸方式、出發地名稱／別名、目的地名稱／別名。");
       return;
     }
     const lines = text.split(/\r?\n/).filter((line) => line.trim());
@@ -352,10 +372,10 @@ export default function Home() {
     const parsed = lines.map((line) => line.split(delimiter).map((cell) => cell.trim().replace(/^"|"$/g, "")));
     const data = parsed.filter((line) => normalize(line[0]) !== "報單號碼" && line.some((cell) => normalize(cell) !== ""));
     if (!data.length) {
-      setError("請貼上至少一行三欄資料：運輸方式、出發地英文代碼、目的地英文代碼。");
+      setError("請貼上至少一行三欄資料：運輸方式、出發地名稱／別名、目的地名稱／別名。");
       return;
     }
-    const rawHeaders = ["運輸方式", "出發地英文代碼", "目的地英文代碼"];
+    const rawHeaders = ["運輸方式", "出發地", "目的地"];
     setHeaders(rawHeaders);
     setRows(data.map((line) => Object.fromEntries(rawHeaders.map((header, index) => [header, line[index] ?? ""]))));
     setSheetName("貼上資料");
@@ -407,9 +427,9 @@ export default function Home() {
             <Button onClick={() => inputRef.current?.click()} variant="outline" className="choose-button"><FileSpreadsheet size={16} />{fileName ? "更換檔案" : "選擇檔案"}</Button>
             <Input ref={inputRef} type="file" accept=".xlsx,.xls" className="hidden-input" onChange={(event) => void loadFile(event.target.files?.[0])} />
           </div> : <div className="paste-card">
-            <div className="paste-heading"><div className="upload-icon"><ClipboardPaste size={22} /></div><div><strong>貼上三欄資料</strong><span>運輸方式、出發地英文代碼、目的地英文代碼</span></div></div>
-            <textarea className="paste-area" value={pastedText} onChange={(event) => setPastedText(event.target.value)} placeholder="請貼上三欄資料，不需要欄位名稱……\n海運    Valencia,+Valencian+Community,+ES    Keelung,+TW\n海運    Valencia,+Valencian+Community,+ES    Keelung,+TW" aria-label="貼上 Excel 文字內容" />
-            <div className="paste-actions"><span>每行一筆；Tab 或逗號分隔</span><Button onClick={loadPastedText} className="paste-button"><ClipboardPaste size={16} />讀取貼上資料</Button></div>
+            <div className="paste-heading"><div className="upload-icon"><ClipboardPaste size={22} /></div><div><strong>貼上三欄資料</strong><span>運輸方式、出發地名稱／別名、目的地名稱／別名（依 JSON 對照）</span></div></div>
+            <textarea className="paste-area" value={pastedText} onChange={(event) => setPastedText(event.target.value)} placeholder="請貼上三欄資料，不需要欄位名稱……\n海運\tSALALAH\t基隆港\n海運\tVALENCIA\t基隆港" aria-label="貼上 Excel 文字內容" />
+            <div className="paste-actions"><span>每行一筆；Tab 或逗號分隔，SALALAH → 基隆港 會讀取 JSON 的 sea</span><Button onClick={loadPastedText} className="paste-button"><ClipboardPaste size={16} />讀取貼上資料</Button></div>
           </div>}
           {error && <div className="error-banner"><X size={16} />{error}</div>}
 

@@ -42,3 +42,6 @@
 - [x] 支援新分頁開啟錯誤 URL 與正確 URL
 - [x] 將網址差異套用到 JSON 代碼表並可匯出
 - [x] 測試 Salalah → Keelung 路線案例
+- [x] 修正三欄貼上改用 JSON locations 與 aliases 查找
+- [x] 依海運／空運讀取地點的 sea／air 欄位
+- [x] 驗證 SALALAH → 基隆港 產生正確網址

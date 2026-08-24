@@ -72,18 +72,20 @@ GitHub 儲存庫右側的 **About** 區塊已設定以下資訊，訪客可由�
 2. **貼上文字**：不需要欄位名稱，每一行只需三欄，欄位順序固定為：
 
    ```text
-   運輸方式<TAB>出發地英文代碼<TAB>目的地英文代碼
+   運輸方式<TAB>出發地名稱或別名<TAB>目的地名稱或別名
    ```
+
+   出發地與目的地會依 JSON `locations` 的名稱、英文名稱或 `aliases` 查找。海運資料讀取對應地點的 `sea` 欄位，空運資料讀取 `air` 欄位，再組成 SeaRates 查詢網址。
 
 範例：
 
 ```text
-海運	Valencia,+Valencian+Community,+ES	Keelung,+TW
-海運	Mundra,+Gujarat,+IN	Keelung,+TW
-空運	Soekarno-Hatta+International+Airport,+Java,+ID	Taoyuan,+Taoyuan+City,+TW
+海運	SALALAH	基隆港
+海運	Mundra	基隆港
+空運	Soekarno-Hatta	桃園機場
 ```
 
-貼上資料後，按下「讀取貼上資料」，系統會產生 SeaRates 查詢網址並顯示預覽；按「匯出更新後 Excel」即可下載結果。
+也支援逗號分隔，例如 `海運,SALALAH,基隆港`。貼上資料後，按下「讀取貼上資料」，系統會產生 SeaRates 查詢網址並顯示預覽；按「匯出更新後 Excel」即可下載結果。
 
 > 網頁版的資料處理在瀏覽器內完成。使用者可在「代碼表管理」分頁編輯對照資料，修改內容會留在目前瀏覽器工作階段，必須按「匯出 JSON」才會下載成檔案。
 
