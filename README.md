@@ -31,6 +31,14 @@ flowchart LR
     H --> I[匯出 Excel]
 ```
 
+## GitHub Pages 線上版本
+
+本專案已設定 GitHub Actions。每次推送到 `main` 分支後，Actions 會自動安裝依賴、執行 TypeScript 檢查、建置 Vite 靜態檔案，並發布到 GitHub Pages。
+
+線上使用網址：<https://qpooqp777.github.io/searates_excel_web/>
+
+若要在自己的 GitHub 儲存庫啟用相同部署流程，請先到 **Settings → Pages**，將 **Build and deployment → Source** 設為 **GitHub Actions**，再推送一次 `main`。workflow 檔案位於 `.github/workflows/deploy-pages.yml`；Vite 會在 GitHub Actions 環境自動使用 `/searates_excel_web/` 作為專案 base path，因此代碼表 JSON 與單頁路由可在 Pages 子路徑正常工作。
+
 ## 網頁版
 
 網頁版提供兩種輸入方式：

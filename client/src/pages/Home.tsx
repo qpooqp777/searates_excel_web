@@ -78,7 +78,7 @@ function CodebookManager() {
   const [name, setName] = useState("");
 
   useEffect(() => {
-    fetch("/searates_location_codes.json")
+    fetch(`${import.meta.env.BASE_URL}searates_location_codes.json`)
       .then((response) => response.json() as Promise<LocationCodes>)
       .then(setCodes)
       .catch(() => setError("代碼表載入失敗，請確認 JSON 檔案存在。"));

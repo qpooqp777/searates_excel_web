@@ -31,3 +31,7 @@
 - [x] 撰寫繁體中文 README.md 使用說明
 - [x] 加入 README 流程說明圖或介面截圖
 - [x] 將 GitHub 儲存庫改為公開並推送文件更新
+- [ ] 加入 GitHub Pages 相容的 Vite base 設定
+- [ ] 建立 GitHub Actions 自動建置與 Pages 部署 workflow
+- [ ] 更新 README 的 GitHub Pages 網址與部署說明
+- [ ] 驗證 Actions 執行狀態與 Pages 發布結果

@@ -205,7 +205,10 @@ function vitePluginStorageProxy(): Plugin {
 
 const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
 
+const isGitHubPagesBuild = process.env.GITHUB_ACTIONS === "true";
+
 export default defineConfig({
+  base: isGitHubPagesBuild ? "/searates_excel_web/" : "/",
   plugins,
   resolve: {
     alias: {
