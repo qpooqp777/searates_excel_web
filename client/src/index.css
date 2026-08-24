@@ -221,3 +221,46 @@ tr:hover td { background: #fbfdff; }
 .row-actions button:last-child:hover { color: #b5533b; border-color: #edc0b5; background: #fff7f5; }
 @media (max-width: 980px) { .codebook-layout { grid-template-columns: 1fr; } .editor-card { order: 0; } .directory-card { order: 1; } }
 @media (max-width: 620px) { .workspace-tabs { width: 100%; } .workspace-tab { flex: 1; justify-content: center; } .codebook-toolbar { display: block; } .codebook-actions { margin-top: 14px; } .codebook-actions button { flex: 1; } .search-box { min-width: 0; width: 100%; margin-top: 12px; } .directory-card .card-header { display: block; } }
+
+/* SeaRates URL 檢驗：以雙欄比較與明確差異色彩，支援錯誤網址修正工作流。 */
+.url-validator { min-width: 0; }
+.validator-toolbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 18px 20px; margin-bottom: 14px; border: 1px solid #dce8f2; border-radius: 8px; background: #fff; box-shadow: 0 5px 14px rgba(31, 74, 111, 0.04); }
+.validator-toolbar h3 { margin: 7px 0 4px; color: #20486e; font-family: Georgia, "Times New Roman", serif; font-size: 21px; }
+.url-compare-grid { display: grid; grid-template-columns: minmax(0, 1fr) 32px minmax(0, 1fr); gap: 12px; align-items: stretch; }
+.url-input-card { border: 1px solid #dce8f2; box-shadow: 0 6px 18px rgba(31, 74, 111, 0.045); }
+.url-input-card .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 18px 18px 12px; }
+.url-input-card .card-title { margin-top: 5px; color: #20486e; font-size: 16px; }
+.url-input-card .card-content { padding: 0 18px 16px; }
+.url-area { min-height: 132px; margin-top: 0; overflow-wrap: anywhere; word-break: break-word; }
+.field-hint { margin: 8px 0 0; color: #8aa0b1; font-size: 11px; line-height: 1.55; }
+.compare-arrow { display: grid; place-items: center; align-self: center; width: 32px; height: 32px; border: 1px solid #cbddea; border-radius: 50%; background: #f5faff; color: #5590b9; }
+.validator-warning { color: #c8873f; }
+.validator-success { color: #3a9a7a; }
+.validator-actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 2px 0; color: #839bad; font-size: 11px; }
+.validator-actions .codebook-actions { justify-content: flex-end; }
+.success-banner { display: flex; align-items: center; gap: 8px; padding: 11px 14px; margin-top: 12px; border: 1px solid #bce0d1; background: #f2fbf6; color: #277a5e; font-size: 12px; border-radius: 6px; }
+.analysis-card { margin-top: 14px; border: 1px solid #cfe0ed; box-shadow: 0 6px 18px rgba(31, 74, 111, 0.045); }
+.analysis-card .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 18px 18px 14px; }
+.analysis-card .card-title { margin-top: 5px; color: #20486e; font-size: 16px; }
+.analysis-card .card-content { padding: 0 18px 18px; }
+.diff-table-wrap { overflow-x: auto; border: 1px solid #e2ebf2; border-radius: 6px; }
+.diff-table { min-width: 650px; }
+.diff-table td { padding: 11px; vertical-align: top; }
+.diff-table td strong { display: block; color: #315a7e; font-size: 12px; }
+.diff-table td small { display: block; margin-top: 4px; color: #91a7b8; font-size: 10px; }
+.diff-before { max-width: 330px; color: #a05a4a; background: #fff8f6; }
+.diff-after { max-width: 330px; color: #277a5e; background: #f3fbf7; }
+@media (max-width: 760px) {
+  .validator-toolbar { display: block; }
+  .validator-toolbar .codebook-actions { margin-top: 14px; }
+  .validator-toolbar .codebook-actions button { flex: 1; }
+  .url-compare-grid { grid-template-columns: 1fr; }
+  .compare-arrow { margin: -2px auto; transform: rotate(90deg); }
+  .validator-actions { align-items: stretch; flex-direction: column; }
+  .validator-actions .codebook-actions { justify-content: stretch; }
+  .validator-actions .codebook-actions button { flex: 1; }
+}
+@media (max-width: 520px) {
+  .validator-toolbar .codebook-actions, .validator-actions .codebook-actions { flex-direction: column; }
+  .validator-toolbar .codebook-actions button, .validator-actions .codebook-actions button { width: 100%; }
+}

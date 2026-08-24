@@ -60,7 +60,7 @@
     },
     "阿曼 塞拉萊港": {
       "type": "seaport",
-      "sea": "Salalah,+Dhofar,+OM",
+      "sea": "Salalah,+Dhofar+Governorate,+OM",
       "aliases": [
         "薩拉拉港",
         "SALALAH",

@@ -38,3 +38,7 @@
 - [x] 設定 GitHub About 專案簡介、首頁與 Topics
 - [x] 補充 GitHub About 與使用說明文件
 - [x] 驗證公開儲存庫資訊
+- [x] 新增 SeaRates 錯誤／正確網址貼上分析介面
+- [x] 支援新分頁開啟錯誤 URL 與正確 URL
+- [x] 將網址差異套用到 JSON 代碼表並可匯出
+- [x] 測試 Salalah → Keelung 路線案例

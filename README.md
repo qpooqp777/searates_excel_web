@@ -51,6 +51,19 @@ GitHub 儲存庫右側的 **About** 區塊已設定以下資訊，訪客可由�
 
 若要在自己的 GitHub 儲存庫啟用相同部署流程，請先到 **Settings → Pages**，將 **Build and deployment → Source** 設為 **GitHub Actions**，再推送一次 `main`。workflow 檔案位於 `.github/workflows/deploy-pages.yml`；Vite 會在 GitHub Actions 環境自動使用 `/searates_excel_web/` 作為專案 base path，因此代碼表 JSON 與單頁路由可在 Pages 子路徑正常工作。
 
+## 網址檢驗與 JSON 修正
+
+若 SeaRates 顯示 **No route found**，可在網頁版的「網址檢驗」分頁使用以下流程：
+
+1. 將顯示錯誤的完整 SeaRates `/distance-time` URL 貼到「錯誤 URL」欄位，按「開啟錯誤 URL」在新分頁確認實際頁面結果。
+2. 將可正常顯示路線的完整 URL 貼到「正確 URL」欄位，按「開啟正確 URL」再次確認。
+3. 按「分析網址差異」，系統會比較 `from`、`to`、`transportMode`、`routingMode`、`fromPlaceType` 與 `toPlaceType`。
+4. 確認差異後按「套用到 JSON」，系統會找出原有地點並更新對應的 `sea` 或 `air` 參數；最後按「匯出修正版 JSON」下載新檔案。
+
+例如 Salalah → Keelung 案例中，`Salalah,+Dhofar,+OM` 會修正為 `Salalah,+Dhofar+Governorate,+OM`。目前的代碼表已同步這項修正。網頁版只能在瀏覽器工作階段中修改資料，若要讓修改永久成為專案預設值，請將匯出的 JSON 覆蓋 `searates_location_codes.json` 與 `client/public/searates_location_codes.json`，再提交到 GitHub。
+
+> 只應將實際確認可用的 URL 套用到代碼表；不同運輸方式或地點類型的參數，必須先確認與正確網址一致。
+
 ## 網頁版
 
 網頁版提供兩種輸入方式：
